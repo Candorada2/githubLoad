@@ -1,0 +1,121 @@
+<html>
+    <style id = styles>
+        .btnHolder{
+           padding: 16px;
+        }
+        .btnHolder > *{
+
+            height: 25px;
+            background-color: #161b22;
+            border-radius: 5px;
+            border: none;
+            color: rgba(255,255,255,0.7);
+        }
+        input{
+            outline: none;
+            font-family:Arial, Helvetica, sans-serif;
+            font-weight: 900;
+        }
+
+        header{
+            width: inherit;
+            z-index: 32;
+    display: flex;
+    padding: 16 32 16 32;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.7);
+    background-color: #161b22;
+    align-items: center;
+    flex-wrap: nowrap;
+        }
+        header > svg{
+            width: 32;
+            height: 32;
+            fill: white;
+        }
+        header > * {
+            margin-right:16;
+        }
+        body{
+            height: 100%;
+            background-color: #0E1117;
+            margin:0px;
+            display: flex;
+  flex-flow: column;
+        }
+    </style>
+    <body>
+        <header>
+            <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            <input type="text" placeholder="GitHub Username" id = search>
+        </header>
+
+
+        <label class = "sH" style = "position: inherit; color: rgba(255, 255, 255, 0.7); font-family: Arial, Helvetica, sans-serif; font-weight: 900; margin-left: 10px; height: 5px; margin-top:5px;">Pages</label>
+        <div class ="btnHolder sH" style="width:inherit;overflow: auto; border-bottom:solid rgba(255, 255, 255, 0.1) 1px;">
+        </div class = "sH">
+            <iframe id = loadFrame class = "sH"src="" frameborder="0" style=" position: inherit;  flex: 1 1 auto;  border-radius: 15px; margin: 20px; border:solid rgba(255,255,255,0.1);background-color:rgba(255,255,255,0.1); overflow: hidden; "></iframe>
+    </body>
+    <script>
+async function getPages(user){
+    var url = "https://api.github.com/users/"+user+"/repos"
+    const response = await fetch(url);
+    var data = await response.json();
+    var pages = new Array()
+    for(i=0;i<data.length;i++){
+        if(data[i].has_pages){
+            pages[pages.length] = "https://"+data[i].owner.login+".github.io/"+data[i].name
+        }
+    }
+    return pages
+    }
+    async function gen(user){
+var links = document.querySelectorAll(".link")
+for(i=0;i<links.length;i++){
+links[i].remove()
+}
+var pages = await getPages(user)
+for(i=0;i<pages.length;i++){
+var newelm = document.createElement("button")
+newelm.innerText = pages[i].split(".github.io/")[1]
+newelm.setAttribute("link",pages[i])
+newelm.style.overflow = "hidden"
+newelm.style.marginLeft = "10px"
+newelm.onclick = function(){loadFrame.src = this.getAttribute('link')}
+newelm.className = "link"
+document.querySelector(".btnHolder").appendChild(newelm)
+
+}
+
+loadFrame.src = document.querySelector(".link").getAttribute('link')
+    }
+var sH = document.querySelectorAll(".sH")
+for(i=0;i<sH.length;i++){
+    sH[i].style.visibility = "hidden"
+}
+    search.onchange = function(){
+        var sH = document.querySelectorAll(".sH")
+for(i=0;i<sH.length;i++){
+    sH[i].style.visibility = "visible"
+}
+        gen(search.value)
+        this.onchange = function(){
+            gen(search.value)
+        }
+        
+    }
+    /* old method of auto open
+    var defaultGenName = ""
+    gen(defaultGenName)
+*/
+/* 
+//new method of auto open
+     search.value = "candorada2"
+   search.onchange()
+   */
+
+    </script>
+</html>
